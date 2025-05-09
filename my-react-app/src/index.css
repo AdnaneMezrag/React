@@ -1,0 +1,13 @@
+@import "tailwindcss";
+
+@layer base{
+    body{
+        @apply bg-[url('../src/assets/Images/BG.png')] bg-cover bg-no-repeat min-h-screen
+    }
+}
+
+@layer components {
+  .container {
+    @apply mx-auto text-center;
+  }
+}

@@ -1,0 +1,109 @@
+import { useState,useEffect } from "react"
+import Search from "./Components/Search"
+import Spinner from "./Components/Spinner";
+import MovieCard from "./Components/MovieCard";
+
+const API_BASE_URL = 'https://api.themoviedb.org/3';
+const API_Key = import.meta.env.VITE_TMDB_API_KEY;
+const API_OPTIONS = {
+  method: 'GET',
+  headers: {
+    accept: 'application/json',
+    Authorization: `Bearer ${API_Key}`
+  }
+};
+
+
+function App() {
+
+  const [error,setError] = useState("");
+  const [movies,setMovies] = useState([]);
+  const [loading,setLoading] = useState(false);
+  
+  useEffect(() => {
+    fetchMovies();
+  }, [])
+
+  const fetchMovies = async() =>{
+    try{
+      // setError('');
+      setLoading(true);
+      const response = await fetch(`${API_BASE_URL}/movie/popular?language=en-US&paged=1`, API_OPTIONS);
+      if(response.status !== 200){
+        throw new Error('Failed to fetch movies');
+      }
+      const data = await response.json();
+      if(!data.results || data.results.length === 0){
+        setMovies([]);
+        throw new Error('No movies found');
+      }
+      setMovies(data.results || []);
+      console.log(data);
+    }catch(error){
+      console.error('Error fetching movies:', error);
+      setError('Failed to fetch movies. Please try again later.');
+      console.log(error);
+    }finally{
+      setLoading(false);
+    }
+  }
+
+  const [searchKeyword , setSearchKeyword]= useState('');
+  return(
+  <div className="">
+    <header className="mt-10">
+      <div className="container">
+        <div className="flex justify-center -mb-10">
+        <img src="../src/assets/icons/logo.svg" alt="" />
+        </div>
+        <div className="flex relative inline-block">
+        <img className="-z-10 absolute top-[106px] -left-0 sm:-left-14" src="../src/assets/Images/Movie02.png" alt="" />
+        <img className="z-10" src="../src/assets/Images/Movie01.png" alt="" />
+        <img className="-z-10 absolute top-[106px] -right-0 sm:-right-14" src="../src/assets/Images/Movie03.png" alt="" />
+      </div>
+      <div className="flex justify-center -mt-16">
+      <h1 className="text-white text-4xl font-bold block max-w-[700px] lg:text-6xl">Find
+         <span className="bg-gradient-to-l from-[#AB8BFF] to-[#D6C7FF] bg-clip-text text-transparent">
+          Movies</span> You’ll Love Without the Hassle</h1>
+      </div>
+
+      </div>
+
+    </header>
+    
+    <section className="mt-10">
+      <div className="container flex justify-center">
+      <Search searchKeyword={searchKeyword} setSearchKeyword={setSearchKeyword} />
+      <p className="text-4xl text-amber-100">{searchKeyword}</p>
+
+      </div>
+    </section>
+
+
+    <main className="All-Movies">
+      <div className="container">
+      <h2 className="text-white text-4xl p-7">All Movies</h2>
+      {loading ? (<p className="text-white">Loading...</p> && <Spinner/>) : error?(
+        <p className="text-red-500">{error}</p>):(
+        <ul className="grid sm:grid-cols-2 lg:grid-cols-4">
+          {movies.map((movie) => (
+           <li>
+            <MovieCard id={movie.id} image = {movie.poster_path} title={movie.title} genre={"Action.Movie"} rating={Math.floor(movie.vote_average)}/>
+           </li>
+          ))}
+        </ul>
+      )}
+      </div>
+    </main>
+
+    <footer>
+      <div>hi</div>
+    </footer>
+
+
+  </div>
+
+)
+}
+
+export default App
