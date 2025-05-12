@@ -10,4 +10,8 @@
   .container {
     @apply mx-auto text-center;
   }
+  .outlined-number {
+  -webkit-text-stroke: 4px #6b6685; /* border color */
+  color: transparent;
+}
 }

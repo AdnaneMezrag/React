@@ -8,8 +8,8 @@ function MovieCard({id,image, title, genre, rating}) {
     <div className='text-white bg-[#0F0D23] flex items-center flex-col p-3 rounded-[16px] m-2 text-[14px]'>
         <div>
         <div className='flex flex-col'>
-        <div className='Card-Image mt-2 hover:scale-105 transition-all duration-300 ease-in-out'>
-            <img className='rounded-2xl ' src={image?
+        <div className='Card-Image mt-2 hover:scale-105 transition-all duration-300 ease-in-out h-[410px]'>
+            <img className='rounded-2xl h-[100%]' src={image?
               ("https://image.tmdb.org/t/p/w500" + image) : backupImage} alt=""/>
         </div>
         <p className='self-start mt-2 font-bold'>{title}</p>

@@ -19,6 +19,7 @@ function App() {
 
   const [error,setError] = useState("");
   const [movies,setMovies] = useState([]);
+  const [trendingMovies,setTrendingMovies] = useState([]);
   const [loading,setLoading] = useState(false);
   const [searchKeyword , setSearchKeyword]= useState('');
   const [debouncedSearchKeyword, setDebouncedSearchKeyword] = useState("");
@@ -28,9 +29,12 @@ function App() {
     fetchMovies();
   }, [debouncedSearchKeyword])
 
+  useEffect(() => {
+    fetchTrendingMovies();
+  },[])
+
   const fetchMovies = async() =>{
     try{
-      // setError('');
       setLoading(true);
       const response = (debouncedSearchKeyword!=="") ? await fetch(`${API_BASE_URL}/search/movie?query=${encodeURIComponent(debouncedSearchKeyword)}`, API_OPTIONS):
       await fetch(`${API_BASE_URL}/movie/popular?language=en-US&paged=1`, API_OPTIONS);
@@ -42,16 +46,30 @@ function App() {
         setMovies([]);
         throw new Error('No movies found');
       }
-      // data.results = data.results.filter((movie) => (movie.title.toLowerCase()).startsWith(searchKeyword.toLowerCase()));
-      console.log(data.results);
       setMovies(data.results || []);
-      console.log(data);
     }catch(error){
       console.error('Error fetching movies:', error);
       setError('Failed to fetch movies. Please try again later.');
       console.log(error);
     }finally{
       setLoading(false);
+    }
+  }
+
+  const fetchTrendingMovies = async() =>{
+    try{
+      const response = await fetch(`${API_BASE_URL}/trending/movie/week?language=en-US`, API_OPTIONS);
+      if(response.status !== 200){
+        throw new Error('Failed to fetch movies');
+      }
+      const data = await response.json();
+      if(!data.results || data.results.length === 0){
+        setTrendingMovies([]);
+        throw new Error('No movies found');
+      }
+      setTrendingMovies(data.results.slice(0,5) || []);
+    }catch(error){
+      console.error('Error fetching movies:', error);
     }
   }
 
@@ -87,6 +105,19 @@ function App() {
 
     <main className="All-Movies">
       <div className="container">
+      <h2 className="text-white text-4xl mt-4">Trending Movies</h2>
+      <section className="Trending-Movies mt-6">
+        <ul className="md:flex md:justify-between">
+          {trendingMovies.map((movie,index) => (
+            <li key={movie.id}>
+              <div className="m-2 lg:m-11 relative">
+                <span className="hidden lg:block outlined-number lg:text-[200px] font-black text-[#2b2750] absolute top-0 left-[-80px] -z-10">{index + 1}</span>
+                <img className="rounded-2xl" src={"https://image.tmdb.org/t/p/w500"+movie.poster_path} alt="" />
+              </div>
+            </li>
+          ))}
+        </ul>
+      </section>
       <h2 className="text-white text-4xl p-7">All Movies</h2>
       {loading ? (<p className="text-white">Loading...</p> && <Spinner/>) : error?(
         <p className="text-red-500">{error}</p>):(
