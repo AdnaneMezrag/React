@@ -2,6 +2,7 @@ import { useState,useEffect } from "react"
 import Search from "./Components/Search"
 import Spinner from "./Components/Spinner";
 import MovieCard from "./Components/MovieCard";
+import {useDebounce} from 'react-use';
 
 const API_BASE_URL = 'https://api.themoviedb.org/3';
 const API_Key = import.meta.env.VITE_TMDB_API_KEY;
@@ -19,16 +20,20 @@ function App() {
   const [error,setError] = useState("");
   const [movies,setMovies] = useState([]);
   const [loading,setLoading] = useState(false);
-  
+  const [searchKeyword , setSearchKeyword]= useState('');
+  const [debouncedSearchKeyword, setDebouncedSearchKeyword] = useState("");
+  useDebounce(()=>setDebouncedSearchKeyword(searchKeyword), 500, [searchKeyword]);
+
   useEffect(() => {
     fetchMovies();
-  }, [])
+  }, [debouncedSearchKeyword])
 
   const fetchMovies = async() =>{
     try{
       // setError('');
       setLoading(true);
-      const response = await fetch(`${API_BASE_URL}/movie/popular?language=en-US&paged=1`, API_OPTIONS);
+      const response = (debouncedSearchKeyword!=="") ? await fetch(`${API_BASE_URL}/search/movie?query=${encodeURIComponent(debouncedSearchKeyword)}`, API_OPTIONS):
+      await fetch(`${API_BASE_URL}/movie/popular?language=en-US&paged=1`, API_OPTIONS);
       if(response.status !== 200){
         throw new Error('Failed to fetch movies');
       }
@@ -37,6 +42,8 @@ function App() {
         setMovies([]);
         throw new Error('No movies found');
       }
+      // data.results = data.results.filter((movie) => (movie.title.toLowerCase()).startsWith(searchKeyword.toLowerCase()));
+      console.log(data.results);
       setMovies(data.results || []);
       console.log(data);
     }catch(error){
@@ -48,7 +55,6 @@ function App() {
     }
   }
 
-  const [searchKeyword , setSearchKeyword]= useState('');
   return(
   <div className="">
     <header className="mt-10">
@@ -74,7 +80,6 @@ function App() {
     <section className="mt-10">
       <div className="container flex justify-center">
       <Search searchKeyword={searchKeyword} setSearchKeyword={setSearchKeyword} />
-      <p className="text-4xl text-amber-100">{searchKeyword}</p>
 
       </div>
     </section>
@@ -95,11 +100,6 @@ function App() {
       )}
       </div>
     </main>
-
-    <footer>
-      <div>hi</div>
-    </footer>
-
 
   </div>
 

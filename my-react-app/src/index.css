@@ -2,7 +2,7 @@
 
 @layer base{
     body{
-        @apply bg-[url('../src/assets/Images/BG.png')] bg-cover bg-no-repeat min-h-screen
+        @apply bg-[url('../src/assets/Images/BG.png')] bg-cover bg-no-repeat bg-fixed min-h-screen;
     }
 }
 
